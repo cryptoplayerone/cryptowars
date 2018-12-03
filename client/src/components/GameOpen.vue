@@ -1,0 +1,85 @@
+<template>
+    <!-- <v-container fill-height> -->
+        <v-layout wrap text-xs-center>
+        </br>
+            <v-flex xs12>
+                <div class="display-1">Choose:</div>
+            </v-flex>
+            <v-flex xs6>
+                <v-avatar
+                    :size="120"
+                    v-on:click.stop="choosePlayer(PlayerToIndex.vader)"
+                >
+                    <img src="/vader.svg" alt="avatar">
+                </v-avatar>
+            </v-flex>
+            <v-flex xs6>
+                <v-avatar
+                    :size="120"
+                    v-on:click.stop="choosePlayer(PlayerToIndex.yoda)"
+                >
+                    <img src="/yoda.svg" alt="avatar">
+                </v-avatar>
+            </v-flex>
+            <v-flex xs4>
+                <v-btn
+                    v-on:click.stop="chooseMove(MovesToIndex.rock)"
+                    large fab depressed
+                    color="#ECECEC"
+                >
+                    <v-icon light x-large>fa-hand-rock</v-icon>
+                </v-btn>
+            </v-flex>
+            <v-flex xs4>
+                <v-btn
+                    v-on:click.stop="chooseMove(MovesToIndex.paper)"
+                    large fab depressed
+                    color="#ECECEC"
+                >
+                    <v-icon light x-large>fa-hand-paper</v-icon>
+                </v-btn>
+            </v-flex>
+            <v-flex xs4>
+                <v-btn
+                    v-on:click.stop="chooseMove(MovesToIndex.scissors)"
+                    large fab depressed
+                    color="#ECECEC"
+                >
+                    <v-icon light x-large class="fa-rotate-90">fa-hand-scissors</v-icon>
+                </v-btn>
+            </v-flex>
+            <v-flex xs12>
+                <v-btn
+                    v-on:click.stop="$emit('play')"
+                    large fab
+                    :disabled="!player || !move"
+                >
+                    <v-icon light x-large>fa-check</v-icon>
+                </v-btn>
+            </v-flex>
+        </v-layout>
+    <!-- </v-container> -->
+</template>
+
+<script>
+import { MovesToIndex, PlayerToIndex } from '../constants';
+
+export default {
+    data: () => ({
+        MovesToIndex,
+        PlayerToIndex,
+        player: null,
+        move: null,
+    }),
+    methods: {
+        choosePlayer(index) {
+            this.player = index;
+            this.$emit('player-chosen', index);
+        },
+        chooseMove(index) {
+            this.move = index;
+            this.$emit('move-chosen', index);
+        }
+    }
+}
+</script>
