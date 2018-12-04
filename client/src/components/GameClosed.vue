@@ -24,16 +24,12 @@
                 v-on:timer-end="$emit('timer-end')"
             />
 
-            <!-- <v-flex xs12>
-                <div class="subheading">To play again:</div>
-                <Timer
-                    :time="timer.interval"
-                    :startValue="timer.value"
-                    size="72"
-                    color="black"
-                    v-on:timer-end="$emit('timer-end')"
-                />
-            </v-flex> -->
+            <v-flex xs12 v-if="winningMove">
+                <v-btn
+                    large round
+                    v-on:click="$emit('restart-game')"
+                >Play again!</v-btn>
+            </v-flex>
         </v-layout>
     </v-container>
 </template>

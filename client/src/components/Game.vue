@@ -28,6 +28,7 @@
                 :player="player"
                 :move="move"
                 v-on:timer-end="resolveTimerEnd"
+                v-on:restart-game="restartGame()"
             />
         </swiper-slide>
 
@@ -127,6 +128,9 @@ export default {
                 GameGuardian.token_address[network],
                 GameGuardian.raiden_address[network]
             );
+        },
+        restartGame() {
+            this.swiper.slideTo(0, 1000, false);
         },
         nextSlide() {
             if (this.swiper.realIndex == 0) {
