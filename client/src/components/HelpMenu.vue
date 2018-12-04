@@ -21,9 +21,17 @@
             </v-card-title>
 
             <v-card-text>
+                <p class="display-1">About</p>
+                <p>You choose a player and a move (rock, paper or scissors). The web app sends your move data (hashed) to the Game Guardian, and triggers an off-chain payment with your Raiden node to the Game Guardian address.</p>
+
+                <p>After the game round ends, the web app sends the actual move data. The Game Guardian then calculates how many tokens it has received for the round, keeps 10% and then distributes the rest to all players that sent the winning move.</p>
+
+                <p class="display-1">How to play</p>
                 <p>To play the game, you need to run a Raiden node on Ropsten. Check out <a href="https://raiden-network.readthedocs.io/en/stable/" target="_blank">https://raiden-network.readthedocs.io/en/stable/</a> for details.</p>
 
-                <p>Make sure you set the "--rpccorsdomain" and "--api-address" flags correctly. Make sure your Raiden node API RPC server address is public (recommended: run it on a cloud server, do not make all the ports public).</p>
+                <p>You need to set the "--rpccorsdomain" flag to the game's domain. This will give access to the game to make payments on your behalf when choosing a move.</p>
+
+                <p>You need to set the "--api-address" flag correctly, making sure your Raiden node API RPC server address is public. Recommended: run Raiden on a cloud server; only make your Raiden port public.</p>
                 <p>Example:</p>
                 <v-textarea
                     solo
@@ -31,33 +39,33 @@
                     value='raiden --network-id ropsten --accept-disclaimer --eth-rpc-endpoint "https://ropsten.infura.io/v3/<YOUR_TOKEN>" --log-config "raiden:debug" --keystore-path ~/Library/Ethereum/testnet/keystore --rpccorsdomain http://192.168.0.4:8080,http://localhost:*/* --api-address http://192.168.0.4:5001'
                 ></v-textarea>
 
-                <p class="subheading">Settings</p>
+                <p class="display-1">Settings</p>
                 <p>To play the game, you need to provide your Raiden node info.</p>
                 <v-form v-model="valid">
                     <v-text-field
-                      v-model="address"
-                      :rules="addressRules"
-                      :counter="42"
-                      label="Raiden node Ethereum address"
-                      placeholder="0x0000000000000000000000000000000000000000"
-                      :value="userInfo.address"
-                      v-on:change="updateInfo()"
-                      :append-icon="address ? `check` : ``"
-                      required
+                        v-model="address"
+                        :rules="addressRules"
+                        :counter="42"
+                        label="Raiden node Ethereum address"
+                        placeholder="0x0000000000000000000000000000000000000000"
+                        :value="userInfo.address"
+                        v-on:change="updateInfo()"
+                        :append-icon="address ? `check` : ``"
+                        required
                     ></v-text-field>
                     <v-text-field
-                      v-model="ip"
-                      :rules="ipRules"
-                      label="Raiden public API RPC server"
-                      placeholder="192.168.0.4:5001"
-                      :value="userInfo.ip"
-                      v-on:change="updateInfo()"
-                      :append-icon="ip ? `check` : ``"
-                      required
+                        v-model="ip"
+                        :rules="ipRules"
+                        label="Raiden public API RPC server"
+                        placeholder="192.168.0.4:5001"
+                        :value="userInfo.ip"
+                        v-on:change="updateInfo()"
+                        :append-icon="ip ? `check` : ``"
+                        required
                     ></v-text-field>
                 </v-form>
                 </br>
-                <p class="subheading">Disclaimer</p>
+                <p class="display-1">Disclaimer</p>
                 <p>This is experimental software, use it at your own risk. Only available on Ropsten.</p>
                 <p>This project is built on top of Raiden Network, but it is an effort external to the Raiden Network project and not affiliated with it.</p>
             </v-card-text>

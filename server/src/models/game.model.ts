@@ -12,13 +12,13 @@ export class Game extends Entity {
 
   @property({
     type: 'number',
-    default: 5 * 60 * 1000,
+    default: 1 * 60 * 1000,
   })
   gameTime: number;
 
   @property({
     type: 'number',
-    default: 5 * 60 * 1000,
+    default: 1 * 60 * 1000,
   })
   resolveTime: number;
 
@@ -32,7 +32,17 @@ export class Game extends Entity {
   @property({
     type: 'string',
   })
-  move: string;
+  winningMove: string;
+
+  @property({
+    type: 'string',
+  })
+  move1: string;
+
+  @property({
+    type: 'string',
+  })
+  move2: string;
 
   @property({
     type: 'number',
@@ -46,6 +56,12 @@ export class Game extends Entity {
 
   @hasMany(() => Move, {keyTo: 'gameId'})
   moves?: Move[];
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  inProgress: boolean;
 
   constructor(data?: Partial<Game>) {
     super(data);

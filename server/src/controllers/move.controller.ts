@@ -18,6 +18,8 @@ import {
 import {Move} from '../models';
 import {MoveRepository} from '../repositories';
 
+const web3Utils = require('web3-utils');
+
 export class MoveController {
   constructor(
     @repository(MoveRepository)
@@ -104,8 +106,16 @@ export class MoveController {
   })
   async updateById(
     @param.path.string('id') id: string,
-    @requestBody() move: Move,
+    @requestBody() move: Partial<Move>,
   ): Promise<void> {
+    let existentMove: Move;
+    let moveHash: string;
+    existentMove = await this.findById(id);
+    console.log('patch move', move);
+    moveHash = web3Utils.soliditySha3(existentMove.userAddress, existentMove.gameId, existentMove.playerId, move.move, move.amount, move.secret);
+    if (existentMove.moveHash !== moveHash) {
+        throw new Error(`Stored move hash is not the same as the one computed from the provided move data ${move}`);
+    }
     await this.moveRepository.updateById(id, move);
   }
 

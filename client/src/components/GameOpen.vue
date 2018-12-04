@@ -1,7 +1,13 @@
 <template>
     <!-- <v-container fill-height> -->
         <v-layout wrap text-xs-center>
-        </br>
+            <Timer
+                :time="timer.intervalGame || 0"
+                :startValue="timer.value || 0"
+                size="100"
+                color="grey"
+                v-on:timer-end="$emit('timer-end')"
+            />
             <v-flex xs12>
                 <div class="display-1">Choose:</div>
             </v-flex>
@@ -63,8 +69,13 @@
 
 <script>
 import { MovesToIndex, PlayerToIndex } from '../constants';
+import Timer from './Timer';
 
 export default {
+    props: ['timer'],
+    components: {
+        Timer,
+    },
     data: () => ({
         MovesToIndex,
         PlayerToIndex,

@@ -19,6 +19,8 @@ import {Game, Move} from '../models';
 import {GameRepository} from '../repositories';
 import {MoveController} from './move.controller';
 
+import RockPaperScissorsWinner from '../rpsWinner';
+
 export class GameController {
   constructor(
     @repository(GameRepository)
@@ -94,7 +96,87 @@ export class GameController {
     },
   })
   async findById(@param.path.string('id') id: string): Promise<Game> {
-    return await this.gameRepository.findById(id);
+    // Check if date is > after resolution time
+    // get all game moves sorted -> calculate entire amount received by the game
+    // calculate winning move -> count all the winners -> get amount of guardian ->  amount/winner
+    // connect to Guardian Raiden node -> get all game payments by payment identifiers (identifier > x)
+    // calculate
+    // send Raiden payments to all winners
+    let game: Game;
+    let currentTime, resolveTime;
+    let moves: Move[];
+    let moveController;
+    let total_amount: number = 0, winner_amount: number, guardian_amount: number;
+    let move_count: any = {
+        '1': {
+            rock: 0,
+            paper: 0,
+            scissors: 0,
+        },
+        '2': {
+            rock: 0,
+            paper: 0,
+            scissors: 0,
+        }
+    };
+    let sorted_moves_1: any = [], sorted_moves_2: any = [];
+    let winningMove: string, move1: string, move2: string;
+    let gameUpdate: Partial<Game>;
+
+    game = await this.gameRepository.findById(id);
+    currentTime = new Date().getTime();
+    resolveTime = game.startTime.getTime() + game.gameTime + game.resolveTime;
+
+    if (game.winningMove || game.inProgress || currentTime < resolveTime) {
+        return game;
+    }
+
+    moveController = new MoveController(await this.gameRepository.move);
+
+    moves = await moveController.find({where: {gameId: id}, order: ["_id ASC"]});
+
+    if (moves.length == 0) {
+        return game;
+    }
+
+    moves.forEach((move: Move) => {
+        if (move.amount) {
+            total_amount += move.amount;
+        }
+        if (move.move) {
+            move_count[move.playerId][move.move] += 1;
+        }
+    });
+    console.log('total_amount', total_amount);
+    console.log('move_count', move_count);
+    sorted_moves_1 = Object.entries(move_count['1']).sort((a: any, b: any) => {
+        return a[1] - b[1];
+    });
+    sorted_moves_2 = Object.entries(move_count['2']).sort((a: any, b: any) => {
+        return a[1] - b[1];
+    });
+    console.log('sorted_moves_1', sorted_moves_1);
+    console.log('sorted_moves_2', sorted_moves_2);
+
+    move1 = sorted_moves_1[2][0];
+    move2 = sorted_moves_2[2][0];
+    winningMove = RockPaperScissorsWinner[move1] == move2 ? move1 : move2;
+
+    guardian_amount = total_amount / 10;
+    total_amount -= guardian_amount;
+    winner_amount = total_amount / moves.length;
+
+    gameUpdate = {
+        winningMove,
+        move1,
+        move2,
+        amount: winner_amount,
+        players: moves.length,
+    };
+    console.log('--gameUpdate', gameUpdate);
+    this.updateById(id, gameUpdate);
+
+    return game;
   }
 
   @post('/game/{id}/move', {
@@ -134,7 +216,7 @@ export class GameController {
   })
   async updateById(
     @param.path.string('id') id: string,
-    @requestBody() game: Game,
+    @requestBody() game: Partial<Game>,
   ): Promise<void> {
     await this.gameRepository.updateById(id, game);
   }

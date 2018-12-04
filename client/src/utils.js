@@ -35,13 +35,18 @@ export class GuardianApi {
         return this.axios.post(api, {});
     }
 
+    revealGame(gameid) {
+        const api = `${this.ip}/game/${gameid}`;
+        return this.axios.get(api, {});
+    }
+
     initMove(gameid, move) {
         const api = `${this.ip}/game/${gameid}/move`;
         return this.axios.post(api, move);
     }
 
-    revealMove(gameid, move) {
-        const api = `${this.ip}/game/${gameid}/reveal`;
-        return this.axios.post(api, move);
+    revealMove(moveid, move) {
+        const api = `${this.ip}/move/${moveid}`;
+        return this.axios.patch(api, move);
     }
 }

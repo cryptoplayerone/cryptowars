@@ -11,9 +11,11 @@
             <v-layout text-xs-center wrap>
                 <v-flex xs12>
                     <GameOpen
+                        :timer="timer"
                         v-on:player-chosen="setPlayer"
                         v-on:move-chosen="setMove"
                         v-on:play="userPlay"
+                        v-on:timer-end="gameTimerEnd"
                     />
                 </v-flex>
             </v-layout>
@@ -21,10 +23,11 @@
         <swiper-slide class="swiper-margin no-swipe">
             <GameClosed
                 v-if="game"
+                :game="game"
                 :timer="timer"
                 :player="player"
                 :move="move"
-                :opponentMove="opponentMove"
+                v-on:timer-end="resolveTimerEnd"
             />
         </swiper-slide>
 
@@ -56,7 +59,7 @@ import StartPage from './StartPage';
 import GameOpen from './GameOpen';
 import GameClosed from './GameClosed';
 import GameEnd from './GameEnd';
-import { MovesToIndex, GameGuardian, GameState, GameStateIndex } from '../constants';
+import { MovesToIndex, IndexToMoves, GameGuardian, GameState, GameStateIndex } from '../constants';
 import { UserRaidenApi, GuardianApi } from '../utils';
 
 Vue.use(VueAwesomeSwiper);
@@ -93,14 +96,14 @@ export default {
                 Vue.axios,
                 guardianIp,
             ),
-            player: 1,
+            player: null,
             game: null,
             gameState: GameState.null,
-            move: MovesToIndex.rock,
-            opponentMove: null,
-            timer: {interval: 1200, value: 0},
+            move: null,
+            timer: {intervalGame: 0, intervalResolve: 0, value: 0},
             raiden_payment: null,
-
+            moveStarted: null,
+            secret: null,
         }
     },
     computed: {
@@ -128,6 +131,11 @@ export default {
         nextSlide() {
             if (this.swiper.realIndex == 0) {
                 console.log('this.userInfo', this.userInfo);
+                this.raiden_payment = null;
+                this.player = null;
+                this.move = null;
+                this.moveStarted = null;
+                this.secret = null;
                 if (!this.userInfo.address || !this.userInfo.ip) {
                     this.$emit('needs-info');
                     return;
@@ -142,7 +150,7 @@ export default {
                     return this.setCurrentGame();
                 }).then(() => {
                     if (this.gameState == GameState.closed) {
-                        alert(`wait for results on previous game: ${this.wait} sec`);
+                        alert(`wait for results on previous game: ${Math.floor(this.wait / 1000)} sec`);
                     } else {
                         this.swiper.slideNext(1000, false);
                     }
@@ -186,6 +194,7 @@ export default {
             }).catch((error) => {
                 alert(`${error} on ${this.guardianApi.ip}`);
             }).then((response) => {
+                this.moveStarted = response.data;
                 this.paymentIdentifier = response.data.paymentIdentifier;
             });
         },
@@ -202,13 +211,13 @@ export default {
         },
         getMoveHash() {
             const secret = this.getSecret();
-            console.log('secret', secret);
+
             if (!this.player) throw new Error('Cannot send move. No player was chosen.');
             if (!this.move) throw new Error('Cannot send move. No move was chosen.');
             if (!this.game._id) throw new Error('Cannot send move. No game._id.');
             if (!secret) throw new Error('Cannot send move. No secret was chosen.');
-
-            return web3Utils.soliditySha3(this.player, this.move, this.game._id, secret);
+            this.secret = secret;
+            return web3Utils.soliditySha3(this.userInfo.address, this.game._id, this.player, IndexToMoves[this.move], GameGuardian.amount, secret);
         },
         setCurrentGame() {
             return this.guardianApi.getGame().then((response) => {
@@ -217,8 +226,9 @@ export default {
                 this.game = game;
 
                 deltaTime = new Date().getTime() - new Date(game.startTime).getTime();
-                this.timer.interval = game.gameTime + game.resolveTime;
-                this.timer.value = deltaTime;
+                this.timer.intervalGame = game.gameTime;
+                this.timer.intervalResolve = game.gameTime + game.resolveTime;
+                this.timer.value = new Date(game.startTime).getTime();
 
                 console.log('setCurrentGame', game);
                 console.log('this.timer', this.timer);
@@ -229,7 +239,7 @@ export default {
                 } else if (deltaTime < (game.gameTime + game.resolveTime)) {
                     // We are during the game resolution time, users wait for results and payments
                     this.gameState = GameState.closed;
-                    this.wait = this.timer.interval - this.timer.value;
+                    this.wait = this.timer.intervalResolve - deltaTime;
                     console.log('wait', this.wait);
                 } else {
                     // Game and resolution has ended.
@@ -242,7 +252,43 @@ export default {
         },
         startGame() {
             return this.guardianApi.startGame();
-        }
+        },
+        gameTimerEnd() {
+            console.log('gameTimerEnd');
+            // If a move was sent go to the next step
+            // Go back to start if the game was not played
+            if (!this.raiden_payment) {
+                this.swiper.slideTo(0, 1000, false);
+            } else {
+                // Just in case the next step slide did not work after the payment was made
+                if (this.swiper.realIndex == 1) {
+                    this.swiper.slideNext(1000, false);
+                }
+                // Send the move data to the guardian server
+                this.guardianApi.revealMove(this.moveStarted._id, {
+                    move: IndexToMoves[this.move],
+                    secret: this.secret,
+                    amount: GameGuardian.amount,
+                }).then((response) => {
+                    console.log('revealMove', response);
+                }).catch(alert);
+            }
+        },
+        resolveTimerEnd() {
+            console.log('resolveTimerEnd');
+            // get winning move from the server and show it in GameClosed
+            // (remove next game timer from last page; maybe have one on the first page)
+            this.guardianApi.revealGame(this.game._id)
+                .then((response) => {
+                    let game = response.data;
+                    if (!game) throw new Error(`Game not found ${this.game._id}`);
+                    if (game.inProgress || !game.winningMove) {
+                        setTimeout(this.resolveTimerEnd, 2000);
+                        return;
+                    }
+                    this.game = game;
+                }).catch(alert);
+        },
     }
 }
 </script>

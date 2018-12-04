@@ -15,10 +15,10 @@
             >
                 <v-icon x-large>{{ `fa-hand-${IndexToMoves[move]}` }}</v-icon>
             </v-btn>
-            <Timer v-else
-                :time="timer.interval"
+            <Timer v-else-if="timer"
+                :time="timer.intervalResolve"
                 :startValue="timer.value"
-                size="72"
+                size="100"
                 color="black"
                 v-on:timer-end="$emit('timer-end')"
             />
