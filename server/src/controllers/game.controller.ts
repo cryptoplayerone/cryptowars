@@ -15,9 +15,12 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {Context} from '@loopback/context';
 import {Game, Move} from '../models';
 import {GameRepository} from '../repositories';
 import {MoveController} from './move.controller';
+import {Raiden} from './raiden.controller';
+import {RaidenDataSource} from '../datasources';
 
 import RockPaperScissorsWinner from '../rpsWinner';
 
@@ -104,7 +107,7 @@ export class GameController {
     // send Raiden payments to all winners
     let game: Game;
     let currentTime, resolveTime;
-    let moves: Move[];
+    let moves: Move[], winningMoves: Move[] = [];
     let moveController;
     let total_amount: number = 0, winner_amount: number, guardian_amount: number;
     let move_count: any = {
@@ -122,6 +125,10 @@ export class GameController {
     let sorted_moves_1: any = [], sorted_moves_2: any = [];
     let winningMove: string, move1: string, move2: string;
     let gameUpdate: Partial<Game>;
+    let raidenPayment: any;
+
+    // TODO - token should be in the move model
+    const token = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
 
     game = await this.gameRepository.findById(id);
     currentTime = new Date().getTime();
@@ -139,14 +146,22 @@ export class GameController {
         return game;
     }
 
-    moves.forEach((move: Move) => {
-        if (move.amount) {
-            total_amount += move.amount;
+    for (let i = 0; i < moves.length; i++) {
+        let sentMove: Move = moves[i];
+
+        if (sentMove.amount && sentMove.move) {
+            raidenPayment = await this.getRaidenPayments(token, sentMove.userAddress);
+            raidenPayment = raidenPayment.find((payment: any) => {
+                return payment.identifier === sentMove.paymentIdentifier;
+            });
+            console.log('raidenPayment', raidenPayment);
+            if (raidenPayment) {
+                total_amount += sentMove.amount;
+                move_count[sentMove.playerId][sentMove.move] += 1;
+                winningMoves.push(sentMove);
+            }
         }
-        if (move.move) {
-            move_count[move.playerId][move.move] += 1;
-        }
-    });
+    }
     console.log('total_amount', total_amount);
     console.log('move_count', move_count);
     sorted_moves_1 = Object.entries(move_count['1']).sort((a: any, b: any) => {
@@ -175,6 +190,13 @@ export class GameController {
     };
     console.log('--gameUpdate', gameUpdate);
     this.updateById(id, gameUpdate);
+
+    // Make Raiden payments to winners
+    winningMoves.forEach((move: Move) => {
+        if (move.move && move.amount && move.move === winningMove) {
+            this.sendRaidenPayment(token, move.userAddress, move.amount, move.paymentIdentifier);
+        }
+    });
 
     return game;
   }
@@ -230,5 +252,25 @@ export class GameController {
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.gameRepository.deleteById(id);
+  }
+
+  async getRaidenPayments(token: string, target: string): Promise<any> {
+    const context: Context = new Context();
+    context.bind('datasources.raiden').to(RaidenDataSource);
+    context.bind('controllers.Raiden').toClass(Raiden);
+    const raiden = await context.get<Raiden>(
+    'controllers.Raiden',
+);
+    return await raiden.raiden.payments(token, target);
+  }
+
+  async sendRaidenPayment(token: string, target: string, amount: number, identifier: number): Promise<any> {
+    const context: Context = new Context();
+    context.bind('datasources.raiden').to(RaidenDataSource);
+    context.bind('controllers.Raiden').toClass(Raiden);
+    const raiden = await context.get<Raiden>(
+    'controllers.Raiden',
+    );
+    return await raiden.raiden.pay(token, target, amount, identifier);
   }
 }
