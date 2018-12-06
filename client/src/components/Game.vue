@@ -60,16 +60,12 @@ import StartPage from './StartPage';
 import GameOpen from './GameOpen';
 import GameClosed from './GameClosed';
 import GameEnd from './GameEnd';
-import { MovesToIndex, IndexToMoves, GameGuardian, GameState, GameStateIndex } from '../constants';
+import { MovesToIndex, IndexToMoves, GameGuardian, GameState, GameStateIndex, Network } from '../constants';
 import { UserRaidenApi, GuardianApi } from '../utils';
 
 Vue.use(VueAwesomeSwiper);
 
 const web3Utils = require('web3-utils');
-
-const guardianIp = 'http://192.168.0.4:3000';
-const network = 3;
-let invoiceNumber = 1;
 
 
 export default {
@@ -95,7 +91,7 @@ export default {
             userRaidenApi: null,
             guardianApi: new GuardianApi(
                 Vue.axios,
-                guardianIp,
+                GameGuardian.host,
             ),
             player: null,
             game: null,
@@ -125,8 +121,8 @@ export default {
             this.userRaidenApi = new UserRaidenApi(
                 Vue.axios,
                 this.userInfo.ip,
-                GameGuardian.token_address[network],
-                GameGuardian.raiden_address[network]
+                GameGuardian.token_address[Network],
+                GameGuardian.raiden_address[Network]
             );
         },
         restartGame() {

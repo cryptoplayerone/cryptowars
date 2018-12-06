@@ -35,11 +35,14 @@ export const IndexToMoves = {
 }
 
 export const GameGuardian = {
+    host: 'http://127.0.0.1:3000',
     raiden_address: {
-        3: '0xbB5AEb01acF5b75bc36eC01f5137Dd2728FbE983',
+        3: '0xCd9492Cdae7E8F8B5a648c6E15c4005C4cd9028b',
     },
     token_address: {
         3: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     },
     amount: 100000,
 }
+
+export const Network = 3;

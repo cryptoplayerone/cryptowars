@@ -15,14 +15,16 @@
                 <div class="display-1">Choose:</div>
             </v-flex>
             <v-flex xs12>
-                <v-avatar
+                <v-avatar class="v-btn v-btn--depressed theme--light v-btn--floating"
                     :size="120"
+                    :color="player === PlayerToIndex.vader ? '#D3D2D4' : ''"
                     v-on:click.stop="choosePlayer(PlayerToIndex.vader)"
                 >
                     <img src="/vader.svg" alt="avatar">
                 </v-avatar>
-                <v-avatar
+                <v-avatar class="v-btn v-btn--depressed theme--light v-btn--floating"
                     :size="120"
+                    :color="player === PlayerToIndex.yoda ? '#D3D2D4' : ''"
                     v-on:click.stop="choosePlayer(PlayerToIndex.yoda)"
                 >
                     <img src="/yoda.svg" alt="avatar">
@@ -32,6 +34,7 @@
             <v-flex xs12>
                 <v-btn
                     v-on:click.stop="chooseMove(MovesToIndex.rock)"
+                    :color="move === MovesToIndex.rock ? '#D3D2D4' : ''"
                     large fab depressed
                     color="#ECECEC"
                 >
@@ -39,6 +42,7 @@
                 </v-btn>
                 <v-btn
                     v-on:click.stop="chooseMove(MovesToIndex.paper)"
+                    :color="move === MovesToIndex.paper ? '#D3D2D4' : ''"
                     large fab depressed
                     color="#ECECEC"
                 >
@@ -46,6 +50,7 @@
                 </v-btn>
                 <v-btn
                     v-on:click.stop="chooseMove(MovesToIndex.scissors)"
+                    :color="move === MovesToIndex.scissors ? '#D3D2D4' : ''"
                     large fab depressed
                     color="#ECECEC"
                 >
