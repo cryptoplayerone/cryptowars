@@ -1,33 +1,35 @@
 <template>
     <!-- <v-container fill-height> -->
         <v-layout wrap text-xs-center>
-            <Timer
-                :time="timer.intervalGame || 0"
-                :startValue="timer.value || 0"
-                size="100"
-                color="grey"
-                v-on:timer-end="$emit('timer-end')"
-            />
+            <v-flex xs12>
+                <Timer
+                    :time="timer.intervalGame || 0"
+                    :startValue="timer.value || 0"
+                    size="100"
+                    color="grey"
+                    v-on:timer-end="$emit('timer-end')"
+                />
+                </br>
+            </v-flex>
             <v-flex xs12>
                 <div class="display-1">Choose:</div>
             </v-flex>
-            <v-flex xs6>
+            <v-flex xs12>
                 <v-avatar
                     :size="120"
                     v-on:click.stop="choosePlayer(PlayerToIndex.vader)"
                 >
                     <img src="/vader.svg" alt="avatar">
                 </v-avatar>
-            </v-flex>
-            <v-flex xs6>
                 <v-avatar
                     :size="120"
                     v-on:click.stop="choosePlayer(PlayerToIndex.yoda)"
                 >
                     <img src="/yoda.svg" alt="avatar">
                 </v-avatar>
+                </br>
             </v-flex>
-            <v-flex xs4>
+            <v-flex xs12>
                 <v-btn
                     v-on:click.stop="chooseMove(MovesToIndex.rock)"
                     large fab depressed
@@ -35,8 +37,6 @@
                 >
                     <v-icon light x-large>fa-hand-rock</v-icon>
                 </v-btn>
-            </v-flex>
-            <v-flex xs4>
                 <v-btn
                     v-on:click.stop="chooseMove(MovesToIndex.paper)"
                     large fab depressed
@@ -44,8 +44,6 @@
                 >
                     <v-icon light x-large>fa-hand-paper</v-icon>
                 </v-btn>
-            </v-flex>
-            <v-flex xs4>
                 <v-btn
                     v-on:click.stop="chooseMove(MovesToIndex.scissors)"
                     large fab depressed
@@ -55,6 +53,7 @@
                 </v-btn>
             </v-flex>
             <v-flex xs12>
+                </br></br>
                 <v-btn
                     v-on:click.stop="$emit('play')"
                     large fab
