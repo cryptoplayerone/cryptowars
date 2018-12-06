@@ -131,6 +131,7 @@ export default {
         nextSlide() {
             if (this.swiper.realIndex == 0) {
                 console.log('this.userInfo', this.userInfo);
+                this.game = null;
                 this.raiden_payment = null;
                 this.player = null;
                 this.move = null;
