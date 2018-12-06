@@ -125,7 +125,7 @@ export class GameController {
     let sorted_moves_1: any = [], sorted_moves_2: any = [];
     let winningMove: string, move1: string, move2: string;
     let gameUpdate: Partial<Game>;
-    let raidenPayment: any;
+    let raidenPayment: any, raidenPayments: any;
 
     // TODO - token should be in the move model
     const token = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
@@ -146,12 +146,12 @@ export class GameController {
         return game;
     }
 
+    raidenPayments = await this.getRaidenPayments(token);
     for (let i = 0; i < moves.length; i++) {
         let sentMove: Move = moves[i];
 
         if (sentMove.amount && sentMove.move) {
-            raidenPayment = await this.getRaidenPayments(token, sentMove.userAddress);
-            raidenPayment = raidenPayment.find((payment: any) => {
+            raidenPayment = raidenPayments[0].find((payment: any) => {
                 return payment.identifier === sentMove.paymentIdentifier;
             });
             console.log('raidenPayment', raidenPayment);
@@ -254,14 +254,14 @@ export class GameController {
     await this.gameRepository.deleteById(id);
   }
 
-  async getRaidenPayments(token: string, target: string): Promise<any> {
+  async getRaidenPayments(token: string): Promise<any> {
     const context: Context = new Context();
     context.bind('datasources.raiden').to(RaidenDataSource);
     context.bind('controllers.Raiden').toClass(Raiden);
     const raiden = await context.get<Raiden>(
     'controllers.Raiden',
 );
-    return await raiden.raiden.payments(token, target);
+    return await raiden.raiden.payments(token);
   }
 
   async sendRaidenPayment(token: string, target: string, amount: number, identifier: number): Promise<any> {
