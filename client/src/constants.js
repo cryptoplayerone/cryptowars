@@ -38,11 +38,13 @@ export const GameGuardian = {
     host: process.env.VUE_APP_GUARDIAN_HOST,
     raiden_address: {
         3: process.env.VUE_APP_GUARDIAN_RAIDEN_ADDRESS_ROPSTEN,
+        42: process.env.VUE_APP_GUARDIAN_RAIDEN_ADDRESS_KOVAN,
     },
     token_address: {
         3: process.env.VUE_APP_GUARDIAN_TOKEN_ADDRESS_ROPSTEN,
+        42: process.env.VUE_APP_GUARDIAN_TOKEN_ADDRESS_KOVAN,
     },
     amount: 100000,
 }
 
-export const Network = 3;
+export const Network = process.env.VUE_APP_NETWORK;
