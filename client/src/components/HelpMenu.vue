@@ -105,6 +105,9 @@ export default {
             ]
         }
     },
+    mounted() {
+        this.ip = '127.0.0.1:5001';
+    },
     watch: {
         infoRequired() {
             if (this.infoRequired) {
