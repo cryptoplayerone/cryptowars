@@ -27,16 +27,15 @@
                 <p>After the game round ends, the web app sends the actual move data. The Game Guardian then calculates how many tokens it has received for the round, keeps 10% and then distributes the rest to all players that sent the winning move.</p>
 
                 <p class="display-1">How to play</p>
-                <p>To play the game, you need to run a Raiden node on Ropsten. Check out <a href="https://raiden-network.readthedocs.io/en/stable/" target="_blank">https://raiden-network.readthedocs.io/en/stable/</a> for details.</p>
+                <p>To play the game, you need to run a Raiden node on Kovan. Check out <a href="https://raiden-network.readthedocs.io/en/stable/" target="_blank">https://raiden-network.readthedocs.io/en/stable/</a> for details.</p>
 
                 <p>You need to set the "--rpccorsdomain" flag to the game's domain. This will give access to the game to make payments on your behalf when choosing a move.</p>
 
-                <p>You need to set the "--api-address" flag correctly, making sure your Raiden node API RPC server address is public. Recommended: run Raiden on a cloud server; only make your Raiden port public.</p>
                 <p>Example:</p>
                 <v-textarea
                     solo
                     name="input-7-1"
-                    value='raiden --network-id ropsten --accept-disclaimer --eth-rpc-endpoint "https://ropsten.infura.io/v3/<YOUR_TOKEN>" --log-config "raiden:debug" --keystore-path ~/Library/Ethereum/testnet/keystore --rpccorsdomain http://192.168.0.4:8080,http://localhost:*/* --api-address http://192.168.0.4:5001'
+                    value='raiden --network-id kovan --environment-type development --accept-disclaimer --gas-price 20000000000  --eth-rpc-endpoint "https://ropsten.infura.io/v3/<YOUR_TOKEN>" --log-config "raiden:debug" --keystore-path ~/Library/Ethereum/kovan/keystore --rpccorsdomain http://127.0.0.1:8080,http://localhost:*/* --api-address http://127.0.0.1:5001'
                 ></v-textarea>
 
                 <p class="display-1">Settings</p>
@@ -57,7 +56,7 @@
                         v-model="ip"
                         :rules="ipRules"
                         label="Raiden public API RPC server"
-                        placeholder="192.168.0.4:5001"
+                        placeholder="127.0.0.1:5001"
                         :value="userInfo.ip"
                         v-on:change="updateInfo()"
                         :append-icon="ip ? `check` : ``"
@@ -67,7 +66,7 @@
                 </br>
                 <p class="display-1">Disclaimer</p>
                 <p>This is experimental software, use it at your own risk. Only available on Ropsten.</p>
-                <p>This project is built on top of Raiden Network, but it is an effort external to the Raiden Network project and not affiliated with it.</p>
+                <p>This project is built on top of Raiden Network, but it is an effort external to the Raiden Network project.</p>
             </v-card-text>
 
             <v-divider></v-divider>
