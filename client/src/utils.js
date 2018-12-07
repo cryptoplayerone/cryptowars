@@ -17,6 +17,11 @@ export class UserRaidenApi {
         console.log('history', api);
         return this.axios.get(api);
     }
+
+    payments() {
+        const api = `${this.ip}/api/1/payments/${this.token}`;
+        return this.axios.get(api);
+    }
 }
 
 export class GuardianApi {

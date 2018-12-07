@@ -27,6 +27,7 @@
                 :timer="timer"
                 :player="player"
                 :move="move"
+                :winningPayment="winningPayment"
                 v-on:timer-end="resolveTimerEnd"
                 v-on:restart-game="restartGame()"
             />
@@ -99,6 +100,7 @@ export default {
             move: null,
             timer: {intervalGame: 0, intervalResolve: 0, value: 0},
             raiden_payment: null,
+            winningPayment: null,
             moveStarted: null,
             secret: null,
         }
@@ -133,6 +135,7 @@ export default {
                 console.log('this.userInfo', this.userInfo);
                 this.game = null;
                 this.raiden_payment = null;
+                this.winningPayment = null;
                 this.player = null;
                 this.move = null;
                 this.moveStarted = null;
@@ -288,7 +291,35 @@ export default {
                         return;
                     }
                     this.game = game;
+                    this.getWinningPayment().then(() => {
+                        // Do one retry in 4 sec.
+                        if (!this.winningPayment) {
+                            setTimeout(() => {
+                                console.log('Retrying getWinningPayment');
+                                this.getWinningPayment().then(() => {
+                                    if (!this.winningPayment) {
+                                        this.winningPayment = 'Could not find Raiden payment.';
+                                    }
+                                })
+                            }, 4000);
+                        }
+                    });
                 }).catch(alert);
+        },
+        getWinningPayment() {
+            return this.userRaidenApi.payments().then((response) => {
+                let payments = response.data.filter((payment) => {
+                    return payment.initiator === GameGuardian.raiden_address[Network];
+                });
+                console.log('payments', payments);
+                const lastPaymentReceived = payments.pop();
+                console.log('lastPaymentReceived', lastPaymentReceived);
+                console.log('this.raiden_payment', this.raiden_payment);
+                if (lastPaymentReceived && lastPaymentReceived.identifier === this.raiden_payment.identifier) {
+                    this.winningPayment = lastPaymentReceived;
+                    console.log('winningPayment set');
+                }
+            });
         },
     }
 }

@@ -58,6 +58,10 @@
                 </v-btn>
             </v-flex>
             <v-flex xs12>
+                </br>
+                <div class="subheading">You will pay {{parseFloat(GameGuardian.amount / 10**18).toFixed(13)}} WETH.</div>
+            </v-flex>
+            <v-flex xs12>
                 </br></br>
                 <v-btn
                     v-on:click.stop="$emit('play')"
@@ -72,7 +76,7 @@
 </template>
 
 <script>
-import { MovesToIndex, PlayerToIndex } from '../constants';
+import { MovesToIndex, PlayerToIndex, GameGuardian } from '../constants';
 import Timer from './Timer';
 
 export default {
@@ -83,6 +87,7 @@ export default {
     data: () => ({
         MovesToIndex,
         PlayerToIndex,
+        GameGuardian,
         player: null,
         move: null,
     }),
