@@ -35,12 +35,12 @@ export const IndexToMoves = {
 }
 
 export const GameGuardian = {
-    host: 'http://127.0.0.1:3000',
+    host: process.env.VUE_APP_GUARDIAN_HOST,
     raiden_address: {
-        3: '0xCd9492Cdae7E8F8B5a648c6E15c4005C4cd9028b',
+        3: process.env.VUE_APP_GUARDIAN_RAIDEN_ADDRESS_ROPSTEN,
     },
     token_address: {
-        3: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        3: process.env.VUE_APP_GUARDIAN_TOKEN_ADDRESS_ROPSTEN,
     },
     amount: 100000,
 }
