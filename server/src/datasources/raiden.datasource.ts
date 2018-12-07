@@ -1,6 +1,6 @@
 import {juggler} from '@loopback/service-proxy';
 
-const RaidenHost = 'http://localhost:5001';
+const RaidenHost = 'http://127.0.0.1:5001';
 
 export const RaidenDataSource: juggler.DataSource = new juggler.DataSource({
   name: 'Raiden',

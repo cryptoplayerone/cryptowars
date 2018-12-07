@@ -128,7 +128,7 @@ export class GameController {
     let raidenPayment: any, raidenPayments: any;
 
     // TODO - token should be in the move model
-    const token = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
+    const token = '0x98a345f06e3A5DFe28EE0af38dd0780b4C0ed73B';
 
     game = await this.gameRepository.findById(id);
     currentTime = new Date().getTime();
